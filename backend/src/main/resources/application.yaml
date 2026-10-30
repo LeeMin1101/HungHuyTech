@@ -28,11 +28,14 @@ spring:
     baseline-on-migrate: true
     locations: classpath:db/migration
 
-# 4. Cấu hình JWT
+# 4. Cấu hình bảo mật App (JWT & Google OAuth)
 app:
   jwt:
     secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
     expiration-ms: ${JWT_EXPIRATION:86400000}
+  google:
+    # THAY MÃ CLIENT ID CỦA BẠN VÀO CHỖ NÀY:
+    client-id: 53160533409-59h5o3p9argpqnqh4nodojuakc9gfpdo.apps.googleusercontent.com
 
 # 5. Cấu hình Swagger / OpenAPI
 springdoc:

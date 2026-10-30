@@ -10,6 +10,7 @@ import com.HungHuyTech.backend.user.entity.Role;
 import com.HungHuyTech.backend.user.entity.User;
 import com.HungHuyTech.backend.user.repository.RoleRepository;
 import com.HungHuyTech.backend.user.repository.UserRepository;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -87,10 +88,7 @@ public class AuthService {
                 .anyMatch(role -> role.getName().equals("ADMIN"));
 
         if (!isAdmin) {
-            // Chặn ngay lập tức nếu tài khoản là CUSTOMER hoặc role khác
             throw new RuntimeException("Truy cập bị từ chối: Tài khoản của bạn không có quyền Quản trị viên!");
-            // Nếu bạn có ErrorCode.UNAUTHORIZED hoặc FORBIDDEN, có thể thay bằng:
-            // throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
         // 3. Xác thực mật khẩu qua Spring Security
@@ -101,6 +99,40 @@ public class AuthService {
         // 4. Sinh JWT Token
         String token = jwtTokenProvider.generateToken(user.getEmail());
 
+        return AuthResponse.builder()
+                .accessToken(token)
+                .tokenType("Bearer")
+                .user(mapToUserInfo(user))
+                .build();
+    }
+
+    // PHƯƠNG THỨC XỬ LÝ ĐĂNG NHẬP BẰNG GOOGLE OAUTH2
+    @Transactional
+    public AuthResponse googleLogin(GoogleIdToken.Payload googlePayload) {
+        String email = googlePayload.getEmail();
+        String name = (String) googlePayload.get("name");
+
+        // 1. Tìm kiếm user theo email, nếu chưa có thì tự động đăng ký mới tài khoản
+        User user = userRepository.findByEmail(email).orElseGet(() -> {
+            Role customerRole = roleRepository.findByName("CUSTOMER")
+                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND, "Default role CUSTOMER not found"));
+
+            User newUser = User.builder()
+                    .fullName(name != null ? name : email.split("@")[0])
+                    .email(email)
+                    .phone("") // Google không trả về số điện thoại mặc định
+                    .passwordHash(passwordEncoder.encode("GOOGLE_OAUTH_DEFAULT_PASSWORD_" + System.currentTimeMillis()))
+                    .status("ACTIVE")
+                    .roles(Set.of(customerRole))
+                    .build();
+
+            return userRepository.save(newUser);
+        });
+
+        // 2. Sinh JWT Token thông qua JwtTokenProvider có sẵn trong hệ thống
+        String token = jwtTokenProvider.generateToken(user.getEmail());
+
+        // 3. Trả về cấu trúc AuthResponse chuẩn
         return AuthResponse.builder()
                 .accessToken(token)
                 .tokenType("Bearer")

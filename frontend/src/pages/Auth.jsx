@@ -8,7 +8,7 @@ import { Laptop, Cpu, Headphones, Smartphone, Monitor, Zap } from "lucide-react"
 import ThemeToggle from "../components/ThemeToggle";
 
 // Thay đổi CLIENT_ID bằng ID Google của bạn sau
-const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "53160533409-59h5o3p9argpqnqh4nodojuakc9gfpdo.apps.googleusercontent.com";
 
 const Auth = () => {
     const navigate = useNavigate();
