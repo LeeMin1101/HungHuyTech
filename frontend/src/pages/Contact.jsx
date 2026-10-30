@@ -79,16 +79,16 @@ const Contact = () => {
                     className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden"
                 >
                     {/* Address Banner (Thay thế cho Google Maps) */}
-                    <div className="w-full bg-gradient-to-br from-blue-50 to-slate-100/50 p-8 md:p-10 border-b border-slate-100 flex flex-col md:flex-row items-center md:items-start gap-5 text-center md:text-left">
+                    <div className="w-full bg-gradient-to-br from-blue-50 to-slate-100/50 dark:from-slate-800 dark:to-slate-900 p-8 md:p-10 border-b border-slate-100 flex flex-col md:flex-row items-center md:items-start gap-5 text-center md:text-left">
                         <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-red-500 shrink-0">
                             <MapPin size={28} />
                         </div>
                         <div>
                             <h3 className="text-sm font-bold text-blue-600 uppercase tracking-widest mb-2">Trụ sở chính</h3>
-                            <p className="text-xl md:text-2xl font-black text-slate-800 leading-tight">
+                            <p className="text-xl md:text-2xl font-black text-slate-900 dark:text-slate-100 leading-tight">
                                 Công ty Cổ phần Công nghệ Hùng Huy
                             </p>
-                            <p className="text-slate-600 mt-2 font-medium">
+                            <p className="text-slate-700 dark:text-slate-300 mt-2 font-medium">
                                 4 Đường Lô C, Khu Phố 3, Phường Tam Bình, TP. Thủ Đức, TP. HCM
                             </p>
                         </div>

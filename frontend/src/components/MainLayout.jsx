@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
     ShoppingCart, User, Search, MapPin, ShieldCheck, 
     FileText, ChevronDown, Phone, Mail, Truck, RotateCcw,
@@ -7,15 +7,39 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext'; 
+import ThemeToggle from './ThemeToggle';
 
 const MainLayout = () => {
     const navigate = useNavigate();
-    const isAuthenticated = !!localStorage.getItem('accessToken');
+    const location = useLocation();
     
+    const isAuthenticated = !!localStorage.getItem('accessToken');
     const { getCartTotalItems } = useCart();
     const cartCount = getCartTotalItems();
 
     const [activeMenu, setActiveMenu] = useState(null);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    // Kiểm tra xem có đang ở trang chủ hay không
+    const isHome = location.pathname === '/';
+    // Navbar chỉ trong suốt khi ở trang chủ VÀ chưa cuộn chuột
+    const isTransparent = isHome && !isScrolled;
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        // Chạy một lần khi mount để cập nhật đúng trạng thái nếu load lại trang ở giữa chừng
+        handleScroll(); 
+        
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem('accessToken');
@@ -29,63 +53,81 @@ const MainLayout = () => {
 
     return (
         <div className="min-h-screen flex flex-col bg-slate-50 font-sans selection:bg-blue-200 selection:text-blue-900">
-            <div className="bg-slate-900 text-slate-300 text-[13px] hidden md:block">
-                <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
-                    <div className="flex items-center space-x-3">
-                        <span className="flex items-center gap-1.5 text-white">
-                            <Phone size={14} className="text-blue-400"/> Hotline: <strong className="text-blue-400">0336868880 - 0913767797</strong>
-                        </span>
-                        <span className="text-slate-600">|</span>
-                        <span className="flex items-center gap-1.5">
-                            <Mail size={14}/> hotro@hunghuy.net
-                        </span>
-                    </div>
-                    <div className="flex items-center space-x-6">
-                        <Link to="/he-thong-cua-hang" className="hover:text-white flex items-center gap-1.5 transition-colors"><MapPin size={14}/> Trụ sở chính</Link>
-                        <Link to="/orders" className="hover:text-white flex items-center gap-1.5 transition-colors"><FileText size={14}/> Tra cứu đơn hàng</Link>
-                        <Link to="/tra-cuu-bao-hanh" className="hover:text-white flex items-center gap-1.5 transition-colors"><ShieldCheck size={14}/> Tra cứu bảo hành</Link>
-                        <Link to="/lien-he" className="text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors font-semibold">
-                            <Headphones size={14}/> Liên hệ hỗ trợ
-                        </Link>
+            
+            {/* HEADER WRAPPER - Dynamic Sticky/Fixed dựa trên trang hiện tại */}
+            <header className={`${isHome ? 'fixed' : 'sticky'} top-0 left-0 w-full z-50 transition-all duration-500 ${isTransparent ? 'bg-transparent' : 'bg-white shadow-md'}`}>
+                
+                {/* TOP BAR - Trượt ẩn đi khi scroll */}
+                <div className={`hidden md:block transition-all duration-500 overflow-hidden ${isScrolled ? 'max-h-0 opacity-0' : 'max-h-16 opacity-100'} ${isTransparent ? 'bg-black/10 backdrop-blur-sm border-b border-white/10 text-white/90' : 'bg-slate-900 text-slate-300'}`}>
+                    <div className="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center text-[13px]">
+                        <div className="flex items-center space-x-3">
+                            <span className={`flex items-center gap-1.5 ${isTransparent ? 'text-white' : 'text-white'}`}>
+                                <Phone size={14} className={isTransparent ? 'text-cyan-300' : 'text-blue-400'}/> Hotline: <strong className={isTransparent ? 'text-cyan-300' : 'text-blue-400'}>0336868880 - 0913767797</strong>
+                            </span>
+                            <span className={isTransparent ? 'text-white/40' : 'text-slate-600'}>|</span>
+                            <span className="flex items-center gap-1.5">
+                                <Mail size={14}/> hotro@hunghuy.net
+                            </span>
+                        </div>
+                        <div className="flex items-center space-x-6">
+                            <Link to="/he-thong-cua-hang" className={`flex items-center gap-1.5 transition-colors ${isTransparent ? 'hover:text-cyan-300' : 'hover:text-white'}`}><MapPin size={14}/> Trụ sở chính</Link>
+                            <Link to="/orders" className={`flex items-center gap-1.5 transition-colors ${isTransparent ? 'hover:text-cyan-300' : 'hover:text-white'}`}><FileText size={14}/> Tra cứu đơn hàng</Link>
+                            <Link to="/tra-cuu-bao-hanh" className={`flex items-center gap-1.5 transition-colors ${isTransparent ? 'hover:text-cyan-300' : 'hover:text-white'}`}><ShieldCheck size={14}/> Tra cứu bảo hành</Link>
+                            <Link to="/lien-he" className={`flex items-center gap-1 transition-colors font-semibold ${isTransparent ? 'text-cyan-300 hover:text-cyan-200' : 'text-blue-400 hover:text-blue-300'}`}>
+                                <Headphones size={14}/> Liên hệ hỗ trợ
+                            </Link>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <header className="bg-white sticky top-0 z-50 shadow-sm border-b border-slate-100">
-                <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-8">
+                {/* MAIN HEADER */}
+                <div className={`max-w-7xl mx-auto px-4 transition-all duration-300 flex items-center justify-between gap-8 ${isScrolled ? 'py-3' : 'py-4'}`}>
                     <Link to="/" className="flex-shrink-0 flex items-center">
                         <img 
                             src="/logo-phu.png" 
                             alt="Hùng Huy Technology Logo" 
-                            className="h-14 w-auto object-contain" 
+                            className={`w-auto object-contain transition-all duration-500 ${isScrolled ? 'h-10' : 'h-14'} ${isTransparent ? 'brightness-0 invert drop-shadow-md' : ''}`} 
                         />
                     </Link>
                     
-                    <div className="flex-1 max-w-2xl relative group">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full blur opacity-0 group-hover:opacity-20 transition duration-500"></div>
-                        <div className="relative flex items-center w-full bg-slate-50 border border-slate-200 rounded-full overflow-hidden focus-within:border-blue-500 focus-within:bg-white focus-within:shadow-[0_0_15px_rgba(59,130,246,0.1)] transition-all">
+                    {/* Thanh tìm kiếm Glassmorphism */}
+                    <div className="flex-1 max-w-2xl relative group hidden sm:block">
+                        <div className={`absolute -inset-0.5 rounded-full blur opacity-0 group-hover:opacity-20 transition duration-500 ${isTransparent ? 'bg-gradient-to-r from-white to-cyan-300' : 'bg-gradient-to-r from-blue-500 to-cyan-400'}`}></div>
+                        <div className={`relative flex items-center w-full rounded-full overflow-hidden transition-all duration-300 border ${
+                            isTransparent 
+                            ? 'bg-white/10 border-white/20 backdrop-blur-md focus-within:bg-white/20 focus-within:border-white/40' 
+                            : 'bg-slate-50 border-slate-200 focus-within:border-blue-500 focus-within:bg-white focus-within:shadow-[0_0_15px_rgba(59,130,246,0.1)]'
+                        }`}>
                             <input 
                                 type="text" 
                                 placeholder="Nhập tên sản phẩm, mã linh kiện, model máy chủ..." 
-                                className="w-full bg-transparent py-2.5 pl-5 pr-12 outline-none text-sm text-slate-700"
+                                className={`w-full bg-transparent py-2.5 pl-5 pr-12 outline-none text-sm transition-colors ${
+                                    isTransparent ? 'text-white placeholder:text-white/70' : 'text-slate-700'
+                                }`}
                             />
-                            <button className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
+                            <button className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
+                                isTransparent ? 'bg-white/90 text-slate-800 hover:bg-white' : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}>
                                 <Search size={16} />
                             </button>
                         </div>
                     </div>
 
-                    <div className="flex items-center space-x-8 flex-shrink-0">
+                    <div className="flex items-center space-x-3 md:space-x-6 flex-shrink-0">
+                        <ThemeToggle transparent={isTransparent} />
                         {isAuthenticated ? (
                             <div className="relative group cursor-pointer flex items-center gap-3">
-                                <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                                    isTransparent ? 'bg-white/20 text-white backdrop-blur-md hover:bg-white/30' : 'bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600'
+                                }`}>
                                     <User size={20} />
                                 </div>
                                 <div className="text-left text-sm hidden md:block">
-                                    <p className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">Tài khoản</p>
-                                    <p className="text-xs text-slate-500 font-medium">Hồ sơ cá nhân <ChevronDown size={12} className="inline ml-0.5"/></p>
+                                    <p className={`font-bold transition-colors ${isTransparent ? 'text-white' : 'text-slate-800 group-hover:text-blue-600'}`}>Tài khoản</p>
+                                    <p className={`text-xs font-medium flex items-center ${isTransparent ? 'text-white/80' : 'text-slate-500'}`}>Hồ sơ cá nhân <ChevronDown size={12} className="ml-0.5"/></p>
                                 </div>
                                 
+                                {/* Dropdown Menu luôn là nền trắng để dễ đọc */}
                                 <div className="absolute top-full right-0 pt-4 w-48 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 origin-top">
                                     <div className="bg-white border border-slate-100 rounded-2xl shadow-xl overflow-hidden">
                                         <Link to="/profile" className="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition-colors">
@@ -100,7 +142,9 @@ const MainLayout = () => {
                         ) : (
                             <Link 
                                 to="/login" 
-                                className="flex items-center gap-2 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white px-5 py-2.5 rounded-full transition-all duration-300 font-bold text-sm shadow-sm hover:shadow-md"
+                                className={`flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-300 font-bold text-sm shadow-sm ${
+                                    isTransparent ? 'bg-white/20 text-white hover:bg-white hover:text-slate-900 backdrop-blur-md' : 'bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white hover:shadow-md'
+                                }`}
                             >
                                 <User size={18} />
                                 Đăng nhập
@@ -108,8 +152,10 @@ const MainLayout = () => {
                         )}
 
                         <Link to="/cart" id="cart-icon" className="flex items-center gap-3 group">
-                            <div className="relative w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center group-hover:bg-blue-600 transition-colors">
-                                <ShoppingCart size={20} className="text-blue-600 group-hover:text-white transition-colors"/>
+                            <div className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                                isTransparent ? 'bg-white/20 text-white backdrop-blur-md group-hover:bg-white/30' : 'bg-blue-50 group-hover:bg-blue-600'
+                            }`}>
+                                <ShoppingCart size={20} className={isTransparent ? 'text-white' : 'text-blue-600 group-hover:text-white transition-colors'}/>
                                 {cartCount > 0 && (
                                     <motion.span 
                                         initial={{ scale: 0 }} animate={{ scale: 1 }} 
@@ -120,22 +166,23 @@ const MainLayout = () => {
                                 )}
                             </div>
                             <div className="text-left text-sm hidden md:block">
-                                <p className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">Giỏ hàng</p>
-                                <p className="text-xs text-blue-600 font-bold">{cartCount} sản phẩm</p>
+                                <p className={`font-bold transition-colors ${isTransparent ? 'text-white' : 'text-slate-800 group-hover:text-blue-600'}`}>Giỏ hàng</p>
+                                <p className={`text-xs font-bold ${isTransparent ? 'text-cyan-300' : 'text-blue-600'}`}>{cartCount} sản phẩm</p>
                             </div>
                         </Link>
                     </div>
                 </div>
 
-                <div className="border-t border-slate-100 hidden lg:block relative">
-                    <div className="max-w-7xl mx-auto px-4 flex items-center gap-8 text-sm font-bold text-slate-700 py-3 relative">
+                {/* BOTTOM MENU BAR */}
+                <div className={`hidden lg:block relative transition-all duration-300 border-t backdrop-blur-md ${isTransparent ? 'border-white/20 bg-black/10 text-white' : 'border-slate-100 bg-white text-slate-700'}`}>
+                    <div className="max-w-7xl mx-auto px-4 flex items-center gap-8 text-sm font-bold py-3 relative">
                         
                         <div 
                             className="relative cursor-pointer"
                             onMouseEnter={() => setActiveMenu('laptop')}
                             onMouseLeave={() => setActiveMenu(null)}
                         >
-                            <Link to="/search?category=laptop" className={`flex items-center gap-2 py-2 transition-colors ${activeMenu === 'laptop' ? 'text-blue-600' : 'hover:text-blue-600'}`}>
+                            <Link to="/search?category=laptop" className={`flex items-center gap-2 py-2 transition-colors ${activeMenu === 'laptop' ? (isTransparent ? 'text-cyan-300' : 'text-blue-600') : (isTransparent ? 'hover:text-cyan-300' : 'hover:text-blue-600')}`}>
                                 <Laptop size={18} /> Laptop & PC <ChevronDown size={14} className={`transition-transform duration-300 ${activeMenu === 'laptop' ? 'rotate-180' : ''}`}/>
                             </Link>
                             
@@ -143,7 +190,7 @@ const MainLayout = () => {
                                 {activeMenu === 'laptop' && (
                                     <motion.div 
                                         variants={menuVariants} initial="hidden" animate="visible" exit="hidden"
-                                        className="absolute left-0 top-full mt-1 w-[800px] bg-white border border-slate-100 shadow-2xl rounded-2xl z-50 flex overflow-hidden"
+                                        className="absolute left-0 top-full mt-1 w-[800px] bg-white text-slate-800 border border-slate-100 shadow-2xl rounded-2xl z-50 flex overflow-hidden"
                                     >
                                         <div className="flex-1 p-8 grid grid-cols-2 gap-10">
                                             <div>
@@ -178,20 +225,24 @@ const MainLayout = () => {
                             </AnimatePresence>
                         </div>
 
-                        <Link to="/search?category=server" className="hover:text-blue-600 flex items-center gap-1.5 py-2 transition-colors"><Server size={18} /> Máy chủ (Server)</Link>
-                        <Link to="/search?category=thiet-bi-mang" className="hover:text-blue-600 flex items-center gap-1.5 py-2 transition-colors"><Wifi size={18} /> Thiết bị mạng</Link>
-                        <Link to="/search?category=may-van-phong" className="hover:text-blue-600 flex items-center gap-1.5 py-2 transition-colors"><Printer size={18} /> Máy văn phòng</Link>
-                        <Link to="/search?category=linh-kien" className="hover:text-blue-600 py-2 transition-colors">Linh & Phụ kiện</Link>
-                        <Link to="/search?category=smart-devices" className="hover:text-blue-600 py-2 transition-colors">Thiết bị thông minh</Link>
+                        <Link to="/search?category=server" className={`flex items-center gap-1.5 py-2 transition-colors ${isTransparent ? 'hover:text-cyan-300' : 'hover:text-blue-600'}`}><Server size={18} /> Máy chủ (Server)</Link>
+                        <Link to="/search?category=thiet-bi-mang" className={`flex items-center gap-1.5 py-2 transition-colors ${isTransparent ? 'hover:text-cyan-300' : 'hover:text-blue-600'}`}><Wifi size={18} /> Thiết bị mạng</Link>
+                        <Link to="/search?category=may-van-phong" className={`flex items-center gap-1.5 py-2 transition-colors ${isTransparent ? 'hover:text-cyan-300' : 'hover:text-blue-600'}`}><Printer size={18} /> Máy văn phòng</Link>
+                        <Link to="/search?category=linh-kien" className={`py-2 transition-colors ${isTransparent ? 'hover:text-cyan-300' : 'hover:text-blue-600'}`}>Linh & Phụ kiện</Link>
+                        <Link to="/search?category=smart-devices" className={`py-2 transition-colors ${isTransparent ? 'hover:text-cyan-300' : 'hover:text-blue-600'}`}>Thiết bị thông minh</Link>
                         
                         <div className="ml-auto flex items-center gap-3">
-                            <Link to="/about" className="bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-full transition-colors flex items-center gap-2">
+                            <Link to="/about" className={`px-4 py-2 rounded-full transition-colors flex items-center gap-2 ${
+                                isTransparent ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white'
+                            }`}>
                                 Về chúng tôi
                             </Link>
 
                             <Link 
                                 to="/lien-he" 
-                                className="relative flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-4 py-2 rounded-full shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all font-bold"
+                                className={`relative flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all ${
+                                    isTransparent ? 'bg-cyan-500 hover:bg-cyan-400 text-slate-900 shadow-[0_0_15px_rgba(34,211,238,0.4)]' : 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:-translate-y-0.5'
+                                }`}
                             >
                                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -204,11 +255,11 @@ const MainLayout = () => {
                 </div>
             </header>
 
-            <main className="flex-grow">
+            <main className="flex-grow flex flex-col">
                 <Outlet />
             </main>
 
-            <footer className="bg-white border-t border-slate-200 mt-12 pt-10 pb-6">
+            <footer className="bg-white border-t border-slate-200 mt-12 pt-10 pb-6 relative z-10">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-6 border-b border-slate-100 mb-10">
                         <div className="flex flex-col items-center text-center gap-3">

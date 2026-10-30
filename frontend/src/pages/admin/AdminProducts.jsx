@@ -3,7 +3,7 @@ import {
     Plus, Edit, Trash2, X, Image as ImageIcon, UploadCloud, 
     CopyPlus, ArrowDown, Search, Filter, Download, Upload, 
     ChevronLeft, ChevronRight, CheckSquare, Square, Star, 
-    Eye, EyeOff, Tag, Layers
+    Eye, EyeOff, Tag, Layers, Flame, Clock
 } from 'lucide-react';
 import axiosClient from '../../utils/axiosClient';
 
@@ -28,15 +28,16 @@ const AdminProducts = () => {
     const [isSaving, setIsSaving] = useState(false);
     
     // Quản lý ảnh (Hỗ trợ nhiều ảnh)
-    const [existingImages, setExistingImages] = useState([]); // Ảnh đã có sẵn từ backend
-    const [newImageFiles, setNewImageFiles] = useState([]); // File ảnh mới chọn để upload
-    const [previewUrls, setPreviewUrls] = useState([]); // URL preview cho ảnh mới
+    const [existingImages, setExistingImages] = useState([]); 
+    const [newImageFiles, setNewImageFiles] = useState([]); 
+    const [previewUrls, setPreviewUrls] = useState([]); 
 
-    // Form data chuẩn hóa để hỗ trợ biến thể
+    // Form data chuẩn hóa (đã bổ sung trường Flash Sale & Thời gian kết thúc)
     const [formData, setFormData] = useState({
         name: '', categoryId: '', brandId: '', 
-        shortDescription: '', specs: '', // Thông số kỹ thuật
+        shortDescription: '', specs: '', 
         isActive: true, isFeatured: false,
+        isFlashSale: false, flashSaleEnd: '', // <--- MỚI: Quản lý Deal Hot / Flash Sale
         variants: [
             { id: null, sku: '', name: 'Mặc định', originalPrice: '', costPrice: '', salePrice: '', stock: '' }
         ]
@@ -48,7 +49,7 @@ const AdminProducts = () => {
             setLoading(true);
             try {
                 const [prodRes, catRes, brandRes] = await Promise.all([
-                    axiosClient.get('/products'), // Giữ nguyên /products để không mất data
+                    axiosClient.get('/products'), 
                     axiosClient.get('/categories'),
                     axiosClient.get('/brands')
                 ]);
@@ -92,7 +93,7 @@ const AdminProducts = () => {
             setSelectedIds([]);
             alert('Xóa hàng loạt thành công!');
         } catch (error) {
-            alert('Có lỗi xảy ra khi xóa hàng loạt. Một số sản phẩm có thể đang nằm trong đơn hàng.');
+            alert('Có lỗi xảy ra khi xóa hàng loạt.');
         }
     };
 
@@ -113,7 +114,7 @@ const AdminProducts = () => {
     const handleImportExcel = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        alert(`Đã nhận file: ${file.name}. (Lưu ý: Cần Backend cung cấp API POST /admin/products/import để xử lý file này)`);
+        alert(`Đã nhận file: ${file.name}.`);
         e.target.value = null; 
     };
 
@@ -121,7 +122,7 @@ const AdminProducts = () => {
     const resetForm = () => {
         setFormData({
             name: '', categoryId: '', brandId: '', shortDescription: '', specs: '',
-            isActive: true, isFeatured: false,
+            isActive: true, isFeatured: false, isFlashSale: false, flashSaleEnd: '',
             variants: [{ id: null, sku: '', name: 'Mặc định', originalPrice: '', costPrice: '', salePrice: '', stock: '' }]
         });
         setExistingImages([]); setNewImageFiles([]); setPreviewUrls([]); setEditingId(null);
@@ -143,18 +144,25 @@ const AdminProducts = () => {
             }))
             : [{ id: null, sku: product.sku || '', name: 'Mặc định', originalPrice: product.minPrice || '', costPrice: '', salePrice: product.minPrice || '', stock: product.stock || 0 }];
 
+        // Format lại thời gian dạng yyyy-MM-ddTHH:mm để truyền vào input type="datetime-local"
+        let formattedDate = '';
+        if (product.flashSaleEnd) {
+            formattedDate = product.flashSaleEnd.substring(0, 16);
+        }
+
         setFormData({
             name: product.name || '',
             categoryId: product.categoryId || '',
             brandId: product.brandId || '',
             shortDescription: product.shortDescription || '',
-            specs: product.description || '', // Giả sử dùng description lưu thông số
+            specs: product.description || '', 
             isActive: product.isActive !== false,
             isFeatured: product.isFeatured === true,
+            isFlashSale: product.isFlashSale === true,
+            flashSaleEnd: formattedDate,
             variants: variants
         });
 
-        // Load ảnh hiện có
         setExistingImages(product.images || (product.primaryImageUrl ? [{ id: null, imageUrl: product.primaryImageUrl, isPrimary: true }] : []));
         setNewImageFiles([]); setPreviewUrls([]);
         setEditingId(product.id);
@@ -190,7 +198,7 @@ const AdminProducts = () => {
         for (const file of files) {
             const data = new FormData();
             data.append('file', file);
-            data.append('upload_preset', 'hunghuy_upload'); // Preset Cloudinary của bạn
+            data.append('upload_preset', 'hunghuy_upload'); 
             try {
                 const res = await fetch(`https://api.cloudinary.com/v1_1/dfsv3dslz/image/upload`, { method: 'POST', body: data });
                 const result = await res.json();
@@ -230,10 +238,8 @@ const AdminProducts = () => {
         setIsSaving(true);
         
         try {
-            // Upload ảnh mới
             const newUploadedUrls = newImageFiles.length > 0 ? await uploadImagesToCloudinary(newImageFiles) : [];
             
-            // Gộp ảnh cũ (giữ lại) và ảnh mới
             const finalImages = [
                 ...existingImages.map((img, i) => ({ id: img.id, imageUrl: img.imageUrl, isPrimary: i === 0, sortOrder: i + 1 })),
                 ...newUploadedUrls.map((url, i) => ({ imageUrl: url, isPrimary: existingImages.length === 0 && i === 0, sortOrder: existingImages.length + i + 1 }))
@@ -250,9 +256,11 @@ const AdminProducts = () => {
                 name: formData.name,
                 sku: formData.variants[0].sku || `SP-${Date.now()}`,
                 shortDescription: formData.shortDescription,
-                description: formData.specs, // Lưu thông số kỹ thuật vào description
+                description: formData.specs, 
                 isActive: formData.isActive,
                 isFeatured: formData.isFeatured,
+                isFlashSale: formData.isFlashSale,                                    // <--- MỚI: Truyền trạng thái Flash Sale
+                flashSaleEnd: formData.flashSaleEnd ? `${formData.flashSaleEnd}:00` : null, // <--- MỚI: Truyền thời gian kết thúc
                 variants: formData.variants.map((v, i) => ({
                     ...(v.id ? { id: v.id } : {}),
                     sku: v.sku || `VAR-${Date.now()}-${i}`,
@@ -275,7 +283,6 @@ const AdminProducts = () => {
             }
             
             setIsModalOpen(false);
-            // Reload lại data nhẹ nhàng
             const res = await axiosClient.get('/products');
             setProducts(res?.data?.content || res?.data?.data || res?.data || []);
             
@@ -306,7 +313,7 @@ const AdminProducts = () => {
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
                 <div>
                     <h1 className="text-xl font-bold text-gray-800">Quản lý Sản phẩm</h1>
-                    <p className="text-sm text-gray-500 mt-1">Tổng số: {filteredProducts.length} sản phẩm (Bao gồm cả sản phẩm bị ẩn)</p>
+                    <p className="text-sm text-gray-500 mt-1">Tổng số: {filteredProducts.length} sản phẩm</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     <button onClick={handleExportExcel} className="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg font-medium flex items-center gap-2 transition-colors">
@@ -357,7 +364,7 @@ const AdminProducts = () => {
                             <th className="p-4 font-semibold">Tên sản phẩm & SKU</th>
                             <th className="p-4 font-semibold text-center">Tồn kho</th>
                             <th className="p-4 font-semibold text-right">Giá bán</th>
-                            <th className="p-4 font-semibold text-center">Kinh doanh</th>
+                            <th className="p-4 font-semibold text-center">Trạng thái</th>
                             <th className="p-4 font-semibold text-center w-24">Thao tác</th>
                         </tr>
                     </thead>
@@ -380,7 +387,8 @@ const AdminProducts = () => {
                                     </td>
                                     <td className="p-4">
                                         <div className="font-semibold text-gray-800 line-clamp-2" title={product.name}>
-                                            {product.isFeatured && <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded mr-2 align-middle">HOT</span>}
+                                            {product.isFeatured && <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded mr-1">HOT</span>}
+                                            {product.isFlashSale && <span className="text-[10px] bg-orange-600 text-white px-1.5 py-0.5 rounded mr-2 flex items-center gap-0.5 inline-flex"><Flame size={10}/> DEAL SỐC</span>}
                                             {product.name}
                                         </div>
                                         <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
@@ -438,7 +446,6 @@ const AdminProducts = () => {
                         </div>
                         
                         <form onSubmit={handleSubmit} className="p-6 flex-1 space-y-8">
-                            
                             {/* SECTION 1: THÔNG TIN CƠ BẢN */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="md:col-span-2 space-y-4">
@@ -469,14 +476,14 @@ const AdminProducts = () => {
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Thông số kỹ thuật chi tiết (Specs)</label>
-                                        <textarea name="specs" value={formData.specs} onChange={handleInputChange} rows="3" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-blue-500 outline-none resize-none" placeholder="- CPU: Intel Core i7&#10;- RAM: 16GB DDR5&#10;- SSD: 512GB NVMe"></textarea>
+                                        <textarea name="specs" value={formData.specs} onChange={handleInputChange} rows="3" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-blue-500 outline-none resize-none" placeholder="CPU, RAM, SSD..."></textarea>
                                     </div>
                                 </div>
 
-                                {/* BÊN PHẢI: TRẠNG THÁI KINH DOANH & ẢNH */}
+                                {/* BÊN PHẢI: TRẠNG THÁI KINH DOANH, FLASH SALE & ẢNH */}
                                 <div className="space-y-6">
-                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                        <h3 className="font-bold text-gray-800 text-sm mb-3">Trạng thái Kinh doanh</h3>
+                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+                                        <h3 className="font-bold text-gray-800 text-sm">Trạng thái & Ưu đãi</h3>
                                         <div className="space-y-3">
                                             <label className="flex items-center justify-between cursor-pointer p-2 hover:bg-white rounded border border-transparent hover:border-gray-200 transition-colors">
                                                 <span className="text-sm font-medium text-gray-700">Hiển thị trên Web</span>
@@ -486,13 +493,33 @@ const AdminProducts = () => {
                                                 <span className="text-sm font-medium text-gray-700 flex items-center gap-1">Đánh dấu Nổi bật <Star size={14} className="text-yellow-500 fill-yellow-500"/></span>
                                                 <input type="checkbox" name="isFeatured" checked={formData.isFeatured} onChange={handleInputChange} className="w-4 h-4 text-yellow-500 rounded focus:ring-yellow-500" />
                                             </label>
+                                            
+                                            {/* --- MỚI: BẬT / TẮT FLASH SALE DEAL SỐC --- */}
+                                            <div className="pt-2 border-t border-gray-200 space-y-2">
+                                                <label className="flex items-center justify-between cursor-pointer p-2 hover:bg-white rounded border border-transparent hover:border-gray-200 transition-colors">
+                                                    <span className="text-sm font-bold text-orange-600 flex items-center gap-1"><Flame size={16}/> Bật Flash Sale Deal Sốc</span>
+                                                    <input type="checkbox" name="isFlashSale" checked={formData.isFlashSale} onChange={handleInputChange} className="w-4 h-4 text-orange-600 rounded focus:ring-orange-500" />
+                                                </label>
+                                                
+                                                {formData.isFlashSale && (
+                                                    <div className="pl-2">
+                                                        <label className="block text-xs font-semibold text-gray-600 mb-1 flex items-center gap-1"><Clock size={12}/> Thời gian kết thúc Deal</label>
+                                                        <input 
+                                                            type="datetime-local" 
+                                                            name="flashSaleEnd" 
+                                                            value={formData.flashSaleEnd} 
+                                                            onChange={handleInputChange} 
+                                                            className="w-full border border-orange-300 bg-orange-50/50 rounded-lg px-2.5 py-1.5 text-xs focus:border-orange-500 outline-none" 
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div>
                                         <h3 className="font-bold text-gray-800 text-sm mb-2 flex items-center gap-2"><ImageIcon size={16} className="text-blue-500"/> Hình ảnh Sản phẩm</h3>
                                         <div className="grid grid-cols-3 gap-2 mb-2">
-                                            {/* Render ảnh cũ */}
                                             {existingImages.map((img, index) => (
                                                 <div key={`exist-${index}`} className="relative border rounded-lg overflow-hidden group h-20 bg-gray-50">
                                                     <img src={img.imageUrl} alt="" className="w-full h-full object-cover" />
@@ -500,7 +527,6 @@ const AdminProducts = () => {
                                                     {index === 0 && <span className="absolute bottom-0 left-0 right-0 bg-blue-600 text-white text-[9px] text-center py-0.5">Ảnh Bìa</span>}
                                                 </div>
                                             ))}
-                                            {/* Render ảnh mới */}
                                             {previewUrls.map((url, index) => (
                                                 <div key={`new-${index}`} className="relative border border-blue-200 rounded-lg overflow-hidden group h-20 bg-blue-50">
                                                     <img src={url} alt="" className="w-full h-full object-cover" />
@@ -508,7 +534,6 @@ const AdminProducts = () => {
                                                     <span className="absolute bottom-0 left-0 right-0 bg-emerald-500 text-white text-[9px] text-center py-0.5">Mới</span>
                                                 </div>
                                             ))}
-                                            {/* Nút thêm ảnh */}
                                             <label className="border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 rounded-lg h-20 flex flex-col items-center justify-center cursor-pointer transition-colors">
                                                 <Plus size={20} className="text-gray-400" />
                                                 <span className="text-[10px] text-gray-500 mt-1">Thêm ảnh</span>

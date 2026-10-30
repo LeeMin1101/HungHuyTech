@@ -1,14 +1,18 @@
 package com.HungHuyTech.backend.category.service;
 
+import com.HungHuyTech.backend.category.dto.AdminCategoryResponse;
 import com.HungHuyTech.backend.category.dto.CategoryRequest;
 import com.HungHuyTech.backend.category.dto.CategoryResponse;
 import com.HungHuyTech.backend.category.entity.Category;
 import com.HungHuyTech.backend.category.repository.CategoryRepository;
+import com.HungHuyTech.backend.common.dto.PageResponse;
 import com.HungHuyTech.backend.common.exception.AppException;
 import com.HungHuyTech.backend.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -20,6 +24,19 @@ import java.util.Map;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+
+    @Transactional(readOnly = true)
+    public PageResponse<AdminCategoryResponse> getAdminCategories(
+            String search,
+            Boolean isActive,
+            int page,
+            int size
+    ) {
+        String keyword = search == null || search.isBlank() ? null : search.trim();
+        var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "sortOrder").and(Sort.by("id")));
+        return PageResponse.from(categoryRepository.searchAdminCategories(keyword, isActive, pageable)
+                .map(this::mapToAdminResponse));
+    }
 
     // Lấy danh sách Category dạng cây phân cấp (Cha -> Con)
     @Transactional(readOnly = true)
@@ -91,6 +108,7 @@ public class CategoryService {
             }
             parent = categoryRepository.findById(request.getParentId())
                     .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND, "Parent category not found"));
+            ensureParentIsNotDescendant(parent, id);
         }
 
         category.setParent(parent);
@@ -134,5 +152,30 @@ public class CategoryService {
                 .isActive(category.getIsActive())
                 .children(new ArrayList<>())
                 .build();
+    }
+
+    private AdminCategoryResponse mapToAdminResponse(Category category) {
+        return AdminCategoryResponse.builder()
+                .id(category.getId())
+                .parentId(category.getParent() != null ? category.getParent().getId() : null)
+                .parentName(category.getParent() != null ? category.getParent().getName() : null)
+                .name(category.getName())
+                .slug(category.getSlug())
+                .description(category.getDescription())
+                .imageUrl(category.getImageUrl())
+                .sortOrder(category.getSortOrder())
+                .isActive(category.getIsActive())
+                .productCount(categoryRepository.countProductsByCategoryId(category.getId()))
+                .build();
+    }
+
+    private void ensureParentIsNotDescendant(Category proposedParent, Long categoryId) {
+        Category current = proposedParent;
+        while (current != null) {
+            if (categoryId.equals(current.getId())) {
+                throw new AppException(ErrorCode.BAD_REQUEST, "Category cannot be moved beneath one of its descendants");
+            }
+            current = current.getParent();
+        }
     }
 }

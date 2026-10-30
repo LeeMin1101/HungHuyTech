@@ -5,6 +5,7 @@ import {
     Users, Ticket, Tags, Truck, CreditCard, ShieldCheck, Briefcase, 
     Wrench, Image, FileText, BarChart3, UserCog, Settings, Hexagon
 } from 'lucide-react';
+import ThemeToggle from '../ThemeToggle';
 
 const AdminLayout = () => {
     const navigate = useNavigate();
@@ -192,13 +193,16 @@ const AdminLayout = () => {
                         <h2 className="text-lg font-bold text-slate-800">{getCurrentPageLabel()}</h2>
                     </div>
                     
-                    <div className="flex items-center gap-3 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg transition-colors">
-                        <div className="w-9 h-9 bg-gradient-to-tr from-blue-100 to-blue-50 text-blue-600 border border-blue-200 rounded-full flex items-center justify-center font-bold shadow-sm">
-                            A
-                        </div>
-                        <div className="hidden sm:block">
-                            <p className="text-sm font-bold text-slate-700 leading-none">Quản trị viên</p>
-                            <p className="text-[11px] text-emerald-500 font-medium mt-1">Đang hoạt động</p>
+                    <div className="flex items-center gap-3">
+                        <ThemeToggle />
+                        <div className="flex items-center gap-3 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg transition-colors">
+                            <div className="w-9 h-9 bg-gradient-to-tr from-blue-100 to-blue-50 text-blue-600 border border-blue-200 rounded-full flex items-center justify-center font-bold shadow-sm">
+                                A
+                            </div>
+                            <div className="hidden sm:block">
+                                <p className="text-sm font-bold text-slate-700 leading-none">Quản trị viên</p>
+                                <p className="text-[11px] text-emerald-500 font-medium mt-1">Đang hoạt động</p>
+                            </div>
                         </div>
                     </div>
                 </header>

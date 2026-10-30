@@ -5,6 +5,7 @@ import com.HungHuyTech.backend.category.entity.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime; // Thêm thư viện thời gian
 import java.util.List;
 
 @Entity
@@ -44,6 +45,13 @@ public class Product {
 
     @Column(name = "is_active")
     private Boolean isActive;
+
+    // --- CÁC TRƯỜNG MỚI CHO FLASH SALE & DEAL SỐC ---
+    @Column(name = "is_flash_sale")
+    private Boolean isFlashSale;
+
+    @Column(name = "flash_sale_end")
+    private LocalDateTime flashSaleEnd;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")

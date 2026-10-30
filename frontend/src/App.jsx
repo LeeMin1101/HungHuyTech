@@ -20,6 +20,13 @@ import AdminWarranty from './pages/admin/AdminWarranty';
 import AdminB2B from './pages/admin/AdminB2B';
 import AdminBlogs from './pages/admin/AdminBlogs';
 import AdminStaff from './pages/admin/AdminStaff';
+import AdminCategories from './pages/admin/AdminCategories';
+import AdminBanners from './pages/admin/AdminBanners';
+import NotFound from './pages/NotFound';
+import WarrantyTracking from './pages/WarrantyTracking'; 
+
+import Blog from './pages/Blog';
+import BlogDetail from './pages/BlogDetail';
 
 function App() {
   return (
@@ -40,11 +47,16 @@ function App() {
         <Route path="warranty" element={<AdminWarranty />} />
         <Route path="b2b" element={<AdminB2B />} />
         <Route path="blogs" element={<AdminBlogs />} />
+        <Route path="banners" element={<AdminBanners />} />
         <Route path="staff" element={<AdminStaff />} />
+        <Route path="categories" element={<AdminCategories />} />
       </Route>
 
+      {/* Bổ sung route /auth để khớp với lệnh navigate('/auth') từ các trang khác */}
+      <Route path="/auth" element={<Auth />} />
       <Route path="/login" element={<Auth />} />
       
+      {/* Bọc trong MainLayout cho giao diện User */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductDetail />} />
@@ -60,7 +72,17 @@ function App() {
         {/* Route trỏ đến trang Profile */}
         <Route path="/orders" element={<Profile />} />
         <Route path="/profile" element={<Profile />} />
+
+        {/* Route Tra cứu bảo hành */}
+        <Route path="/tra-cuu-bao-hanh" element={<WarrantyTracking />} />
+
+        {/* Route cho Blog */}
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogDetail />} />
       </Route>
+
+      {/* ROUTE 404: Bắt tất cả các link không tồn tại (LUÔN ĐỂ DƯỚI CÙNG) */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

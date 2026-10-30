@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -21,6 +22,8 @@ public class ProductPublicResponse {
     private String description;
     private Integer warrantyMonths;
     private Boolean isFeatured;
+    private Boolean isFlashSale;
+    private LocalDateTime flashSaleEnd;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     private String primaryImageUrl;

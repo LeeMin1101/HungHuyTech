@@ -88,6 +88,8 @@ public class ProductService {
                 .warrantyMonths(request.getWarrantyMonths() != null ? request.getWarrantyMonths() : 12)
                 .isFeatured(request.getIsFeatured() != null ? request.getIsFeatured() : false)
                 .isActive(request.getIsActive() != null ? request.getIsActive() : true)
+                .isFlashSale(Boolean.TRUE.equals(request.getIsFlashSale()))
+                .flashSaleEnd(Boolean.TRUE.equals(request.getIsFlashSale()) ? request.getFlashSaleEnd() : null)
                 .images(new ArrayList<>())
                 .variants(new ArrayList<>())
                 .build();
@@ -150,6 +152,8 @@ public class ProductService {
         if (request.getSlug() != null) product.setSlug(request.getSlug());
         product.setShortDescription(request.getShortDescription());
         product.setDescription(request.getDescription());
+        product.setIsFlashSale(Boolean.TRUE.equals(request.getIsFlashSale()));
+        product.setFlashSaleEnd(Boolean.TRUE.equals(request.getIsFlashSale()) ? request.getFlashSaleEnd() : null);
 
         // Cập nhật Giá bán và Tồn kho của Variant đầu tiên
         if (request.getVariants() != null && !request.getVariants().isEmpty()) {
@@ -250,6 +254,8 @@ public class ProductService {
                 .description(product.getDescription())
                 .warrantyMonths(product.getWarrantyMonths())
                 .isFeatured(product.getIsFeatured())
+                .isFlashSale(product.getIsFlashSale())
+                .flashSaleEnd(product.getFlashSaleEnd())
                 .minPrice(minPrice)
                 .maxPrice(maxPrice)
                 .primaryImageUrl(primaryImage)

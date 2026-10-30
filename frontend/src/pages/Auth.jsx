@@ -5,6 +5,7 @@ import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import axiosClient from "../utils/axiosClient";
 import { FiStar, FiZap, FiCreditCard, FiAlertTriangle, FiAlertCircle } from "react-icons/fi";
 import { Laptop, Cpu, Headphones, Smartphone, Monitor, Zap } from "lucide-react";
+import ThemeToggle from "../components/ThemeToggle";
 
 // Thay đổi CLIENT_ID bằng ID Google của bạn sau
 const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com";
@@ -181,6 +182,7 @@ const Auth = () => {
                 <Link to="/" className="absolute top-8 left-8 z-50 font-bold text-gray-500 hover:text-blue-600 transition-colors">
                     &larr; Về trang chủ
                 </Link>
+                <ThemeToggle className="absolute right-8 top-6 z-50" />
 
                 <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
                 <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-3xl animate-pulse pointer-events-none"></div>

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -35,6 +36,8 @@ public class ProductRequest {
     private Integer warrantyMonths = 12;
     private Boolean isFeatured = false;
     private Boolean isActive = true;
+    private Boolean isFlashSale = false;
+    private LocalDateTime flashSaleEnd;
 
     @Valid
     @NotEmpty(message = "At least one product variant is required")

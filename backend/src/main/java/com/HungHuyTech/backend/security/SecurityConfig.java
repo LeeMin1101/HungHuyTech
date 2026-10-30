@@ -66,16 +66,19 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        // 2. Mở public cho các API xem sản phẩm, danh mục, tra cứu, địa chỉ hành chính...
+                        // 2. Mở public cho các API xem sản phẩm, danh mục, tra cứu, banner, blog...
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/categories/**",
                                 "/api/v1/brands/**",
                                 "/api/v1/products/**",
                                 "/api/v1/promotions/**",
                                 "/api/v1/warranty/check",
+                                "/api/v1/banners",
                                 "/api/v1/banners/**",
+                                "/api/v1/blogs",
+                                "/api/v1/blogs/**",
                                 "/api/v1/blog/**",
-                                "/api/v1/locations/**" // <--- MỞ KHÓA API LẤY TỈNH/QUẬN/PHƯỜNG TẠI ĐÂY
+                                "/api/v1/locations/**"
                         ).permitAll()
 
                         // 3. Các API quản trị chỉ dành cho ADMIN hoặc STAFF

@@ -131,7 +131,7 @@ const Profile = () => {
                     {/* SIDEBAR TÀI KHOẢN */}
                     <div className="md:w-1/3 lg:w-1/4">
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
-                            <div className="p-6 text-center border-b border-gray-100 bg-gradient-to-b from-blue-50 to-white">
+                            <div className="p-6 text-center border-b border-gray-100 bg-gradient-to-b from-blue-50 to-white dark:from-slate-800 dark:to-slate-900">
                                 <div className="w-20 h-20 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-3 shadow-inner relative">
                                     {userInfo?.avatarUrl ? (
                                         <img 
@@ -151,8 +151,8 @@ const Profile = () => {
                                         <Crown size={10} /> {vipStats.currentTier.name}
                                     </div>
                                 </div>
-                                <h2 className="font-bold text-gray-900 text-lg">{userInfo?.fullName || 'Khách hàng'}</h2>
-                                <p className="text-sm text-gray-500">{userInfo?.email || 'Chưa có email'}</p>
+                                <h2 className="font-bold text-gray-900 dark:text-slate-100 text-lg">{userInfo?.fullName || 'Khách hàng'}</h2>
+                                <p className="text-sm text-gray-700 dark:text-slate-300">{userInfo?.email || 'Chưa có email'}</p>
                             </div>
 
                             <div className="p-3 space-y-1">
