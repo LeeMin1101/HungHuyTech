@@ -120,22 +120,25 @@ INSERT INTO user_roles (user_id, role_id)
 SELECT u.id, r.id FROM users u, roles r WHERE u.email = 'a@gmail.com' AND r.name = 'ADMIN'
     ON CONFLICT (user_id, role_id) DO NOTHING;
 
--- Seed Danh mục cha (Cấp 1)
-INSERT INTO categories (id, parent_id, name, slug, description, sort_order, is_active) VALUES
-                                                                                           (1, NULL, 'Laptop', 'laptop', 'Máy tính xách tay chính hãng', 1, TRUE),
-                                                                                           (2, NULL, 'PC - Máy tính bộ', 'pc-may-tinh-bo', 'PC văn phòng, gaming, đồ họa', 2, TRUE),
-                                                                                           (3, NULL, 'Linh kiện máy tính', 'linh-kien-may-tinh', 'CPU, RAM, SSD, Mainboard, VGA', 3, TRUE),
-                                                                                           (4, NULL, 'Thiết bị mạng', 'thiet-bi-mang', 'Router, Switch, Access Point doanh nghiệp', 4, TRUE);
-
--- Seed Danh mục con (Cấp 2 - Trỏ parent_id về Laptop và PC)
+-- Seed Danh mục cha (Cấp 1) - Không chỉ định ID cố định, dùng ON CONFLICT (slug)
 INSERT INTO categories (parent_id, name, slug, description, sort_order, is_active) VALUES
-                                                                                       (1, 'Laptop Văn Phòng', 'laptop-van-phong', 'Laptop mỏng nhẹ cho sinh viên và văn phòng', 1, TRUE),
-                                                                                       (1, 'Laptop Gaming', 'laptop-gaming', 'Laptop cấu hình cao chơi game', 2, TRUE),
-                                                                                       (2, 'PC Gaming', 'pc-gaming', 'Máy tính bàn chiến game', 1, TRUE);
+                                                                                       (NULL, 'Laptop', 'laptop', 'Máy tính xách tay chính hãng', 1, TRUE),
+                                                                                       (NULL, 'PC - Máy tính bộ', 'pc-may-tinh-bo', 'PC văn phòng, gaming, đồ họa', 2, TRUE),
+                                                                                       (NULL, 'Linh kiện máy tính', 'linh-kien-may-tinh', 'CPU, RAM, SSD, Mainboard, VGA', 3, TRUE),
+                                                                                       (NULL, 'Thiết bị mạng', 'thiet-bi-mang', 'Router, Switch, Access Point doanh nghiệp', 4, TRUE)
+    ON CONFLICT (slug) DO NOTHING;
+
+-- Seed Danh mục con (Cấp 2) - Lấy parent_id động bằng subquery dựa vào slug của danh mục cha
+INSERT INTO categories (parent_id, name, slug, description, sort_order, is_active) VALUES
+                                                                                       ((SELECT id FROM categories WHERE slug = 'laptop'), 'Laptop Văn Phòng', 'laptop-van-phong', 'Laptop mỏng nhẹ cho sinh viên và văn phòng', 1, TRUE),
+                                                                                       ((SELECT id FROM categories WHERE slug = 'laptop'), 'Laptop Gaming', 'laptop-gaming', 'Laptop cấu hình cao chơi game', 2, TRUE),
+                                                                                       ((SELECT id FROM categories WHERE slug = 'pc-may-tinh-bo'), 'PC Gaming', 'pc-gaming', 'Máy tính bàn chiến game', 1, TRUE)
+    ON CONFLICT (slug) DO NOTHING;
 
 -- Seed Thương hiệu
 INSERT INTO brands (name, slug, description, is_active) VALUES
                                                             ('ASUS', 'asus', 'Thương hiệu laptop và linh kiện ASUS', TRUE),
                                                             ('Dell', 'dell', 'Thương hiệu máy tính Dell bền bỉ', TRUE),
                                                             ('MSI', 'msi', 'Thương hiệu gaming MSI', TRUE),
-                                                            ('TP-Link', 'tp-link', 'Thiết bị mạng TP-Link', TRUE);
+                                                            ('TP-Link', 'tp-link', 'Thiết bị mạng TP-Link', TRUE)
+    ON CONFLICT (slug) DO NOTHING;
