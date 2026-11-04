@@ -1,5 +1,5 @@
 CREATE TABLE warranties (
-                            id BIGINT BIGSERIAL PRIMARY KEY,
+                            id BIGSERIAL PRIMARY KEY,
                             ticket_code VARCHAR(50) NOT NULL UNIQUE,
                             customer_name VARCHAR(100) NOT NULL,
                             customer_phone VARCHAR(20) NOT NULL,
@@ -9,5 +9,5 @@ CREATE TABLE warranties (
                             issue_description TEXT NOT NULL,
                             technician_note TEXT,
                             status VARCHAR(50) DEFAULT 'PENDING',
-                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

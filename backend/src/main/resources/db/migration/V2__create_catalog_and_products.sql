@@ -1,6 +1,6 @@
 -- 1. Bảng categories (Hỗ trợ danh mục đa cấp cha - con qua parent_id)
 CREATE TABLE categories (
-                            id BIGINT BIGSERIAL PRIMARY KEY,
+                            id BIGSERIAL PRIMARY KEY,
                             parent_id BIGINT NULL,
                             name VARCHAR(150) NOT NULL,
                             slug VARCHAR(180) NOT NULL UNIQUE,
@@ -8,51 +8,54 @@ CREATE TABLE categories (
                             image_url VARCHAR(500),
                             sort_order INT NOT NULL DEFAULT 0,
                             is_active BOOLEAN NOT NULL DEFAULT TRUE,
-                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                            INDEX idx_categories_slug (slug),
-                            INDEX idx_categories_parent (parent_id),
+                            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                             CONSTRAINT fk_categories_parent FOREIGN KEY (parent_id) REFERENCES categories (id) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
+
+CREATE INDEX idx_categories_slug ON categories (slug);
+CREATE INDEX idx_categories_parent ON categories (parent_id);
 
 -- 2. Bảng brands (Thương hiệu sản phẩm)
 CREATE TABLE brands (
-                        id BIGINT BIGSERIAL PRIMARY KEY,
+                        id BIGSERIAL PRIMARY KEY,
                         name VARCHAR(150) NOT NULL,
                         slug VARCHAR(180) NOT NULL UNIQUE,
                         logo_url VARCHAR(500),
                         description TEXT,
                         is_active BOOLEAN NOT NULL DEFAULT TRUE,
-                        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                        INDEX idx_brands_slug (slug)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_brands_slug ON brands (slug);
 
 -- 3. Bảng products (Sản phẩm tổng)
 CREATE TABLE products (
-                          id BIGINT BIGSERIAL PRIMARY KEY,
+                          id BIGSERIAL PRIMARY KEY,
                           category_id BIGINT NOT NULL,
                           brand_id BIGINT NOT NULL,
                           name VARCHAR(255) NOT NULL,
                           slug VARCHAR(280) NOT NULL UNIQUE,
                           sku VARCHAR(100) NOT NULL UNIQUE,
-                          description LONGTEXT,
+                          description TEXT,
                           short_description TEXT,
                           warranty_months INT NOT NULL DEFAULT 12,
                           is_featured BOOLEAN NOT NULL DEFAULT FALSE,
                           is_active BOOLEAN NOT NULL DEFAULT TRUE,
-                          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                          updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                          INDEX idx_products_slug (slug),
-                          INDEX idx_products_sku (sku),
-                          INDEX idx_products_category_brand (category_id, brand_id, is_active),
+                          created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                          updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                           CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE RESTRICT,
                           CONSTRAINT fk_products_brand FOREIGN KEY (brand_id) REFERENCES brands (id) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
+
+CREATE INDEX idx_products_slug ON products (slug);
+CREATE INDEX idx_products_sku ON products (sku);
+CREATE INDEX idx_products_category_brand ON products (category_id, brand_id, is_active);
 
 -- 4. Bảng product_variants (Biến thể/SKU thực tế)
 CREATE TABLE product_variants (
-                                  id BIGINT BIGSERIAL PRIMARY KEY,
+                                  id BIGSERIAL PRIMARY KEY,
                                   product_id BIGINT NOT NULL,
                                   sku VARCHAR(100) NOT NULL UNIQUE,
                                   name VARCHAR(255) NOT NULL,
@@ -62,55 +65,60 @@ CREATE TABLE product_variants (
                                   barcode VARCHAR(100),
                                   weight DECIMAL(10, 2) DEFAULT 0.00,
                                   is_active BOOLEAN NOT NULL DEFAULT TRUE,
-                                  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                  INDEX idx_variants_sku (sku),
-                                  INDEX idx_variants_product_price (product_id, is_active, price),
+                                  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                   CONSTRAINT fk_variants_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
+
+CREATE INDEX idx_variants_sku ON product_variants (sku);
+CREATE INDEX idx_variants_product_price ON product_variants (product_id, is_active, price);
 
 -- 5. Bảng product_images (Hình ảnh sản phẩm)
 CREATE TABLE product_images (
-                                id BIGINT BIGSERIAL PRIMARY KEY,
+                                id BIGSERIAL PRIMARY KEY,
                                 product_id BIGINT NOT NULL,
                                 variant_id BIGINT NULL,
                                 image_url VARCHAR(500) NOT NULL,
                                 sort_order INT NOT NULL DEFAULT 0,
                                 is_primary BOOLEAN NOT NULL DEFAULT FALSE,
-                                INDEX idx_product_images_product (product_id),
                                 CONSTRAINT fk_images_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
                                 CONSTRAINT fk_images_variant FOREIGN KEY (variant_id) REFERENCES product_variants (id) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
+
+CREATE INDEX idx_product_images_product ON product_images (product_id);
 
 -- 6. Các bảng thuộc tính động EAV (RAM, CPU, GPU...)
 CREATE TABLE attributes (
-                            id BIGINT BIGSERIAL PRIMARY KEY,
+                            id BIGSERIAL PRIMARY KEY,
                             name VARCHAR(100) NOT NULL UNIQUE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE attribute_values (
-                                  id BIGINT BIGSERIAL PRIMARY KEY,
+                                  id BIGSERIAL PRIMARY KEY,
                                   attribute_id BIGINT NOT NULL,
                                   value VARCHAR(150) NOT NULL,
-                                  INDEX idx_attr_values_attr (attribute_id),
                                   CONSTRAINT fk_attr_values_attribute FOREIGN KEY (attribute_id) REFERENCES attributes (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
+
+CREATE INDEX idx_attr_values_attr ON attribute_values (attribute_id);
 
 CREATE TABLE product_variant_attributes (
                                             variant_id BIGINT NOT NULL,
                                             attribute_value_id BIGINT NOT NULL,
                                             PRIMARY KEY (variant_id, attribute_value_id),
-                                            INDEX idx_pva_attr_val (attribute_value_id),
                                             CONSTRAINT fk_pva_variant FOREIGN KEY (variant_id) REFERENCES product_variants (id) ON DELETE CASCADE,
                                             CONSTRAINT fk_pva_attr_value FOREIGN KEY (attribute_value_id) REFERENCES attribute_values (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
+
+CREATE INDEX idx_pva_attr_val ON product_variant_attributes (attribute_value_id);
 
 -- ==========================================================
 -- SEED DỮ LIỆU MẪU & CẤP QUYỀN ADMIN CHO USER ĐẦU TIÊN
 -- ==========================================================
 -- Cấp thêm quyền ADMIN cho tài khoản đầu tiên (a@gmail.com) để test các API /api/v1/admin/**
-INSERT IGNORE INTO user_roles (user_id, role_id)
-SELECT u.id, r.id FROM users u, roles r WHERE u.email = 'a@gmail.com' AND r.name = 'ADMIN';
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, r.id FROM users u, roles r WHERE u.email = 'a@gmail.com' AND r.name = 'ADMIN'
+    ON CONFLICT (user_id, role_id) DO NOTHING;
 
 -- Seed Danh mục cha (Cấp 1)
 INSERT INTO categories (id, parent_id, name, slug, description, sort_order, is_active) VALUES

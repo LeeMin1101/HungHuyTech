@@ -1,12 +1,12 @@
 CREATE TABLE blogs (
-                       id BIGINT BIGSERIAL PRIMARY KEY,
+                       id BIGSERIAL PRIMARY KEY,
                        title VARCHAR(255) NOT NULL,
                        slug VARCHAR(255) NOT NULL UNIQUE,
                        category VARCHAR(100),
                        thumbnail VARCHAR(500),
                        summary TEXT,
-                       content LONGTEXT NOT NULL,
+                       content TEXT NOT NULL,
                        status VARCHAR(20) NOT NULL,
-                       created_at DATETIME(6),
-                       updated_at DATETIME(6)
+                       created_at TIMESTAMP,
+                       updated_at TIMESTAMP
 );
