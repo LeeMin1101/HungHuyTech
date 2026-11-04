@@ -1,5 +1,5 @@
 CREATE TABLE blogs (
-                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                       id BIGINT BIGSERIAL PRIMARY KEY,
                        title VARCHAR(255) NOT NULL,
                        slug VARCHAR(255) NOT NULL UNIQUE,
                        category VARCHAR(100),

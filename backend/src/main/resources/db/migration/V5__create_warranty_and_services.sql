@@ -2,7 +2,7 @@
 -- 1. MODULE BẢO HÀNH (MỤC 20)
 -- ==========================================================
 CREATE TABLE warranty_policies (
-                                   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                   id BIGINT BIGSERIAL PRIMARY KEY,
                                    name VARCHAR(150) NOT NULL,
                                    description TEXT,
                                    duration_months INT NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE warranty_policies (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE warranty_registrations (
-                                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                        id BIGINT BIGSERIAL PRIMARY KEY,
                                         serial_id BIGINT NOT NULL UNIQUE,
                                         order_id BIGINT NOT NULL,
                                         user_id BIGINT NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE warranty_registrations (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE warranty_requests (
-                                   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                   id BIGINT BIGSERIAL PRIMARY KEY,
                                    warranty_registration_id BIGINT NOT NULL,
                                    user_id BIGINT NOT NULL,
                                    request_code VARCHAR(50) NOT NULL UNIQUE,
@@ -50,7 +50,7 @@ CREATE TABLE warranty_requests (
 -- 2. MODULE DỊCH VỤ CNTT & YÊU CẦU DOANH NGHIỆP (MỤC 21 & 22)
 -- ==========================================================
 CREATE TABLE service_requests (
-                                  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                  id BIGINT BIGSERIAL PRIMARY KEY,
                                   user_id BIGINT NOT NULL,
                                   service_type VARCHAR(100) NOT NULL,
                                   title VARCHAR(200) NOT NULL,
@@ -67,7 +67,7 @@ CREATE TABLE service_requests (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE business_requests (
-                                   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                   id BIGINT BIGSERIAL PRIMARY KEY,
                                    user_id BIGINT NOT NULL,
                                    company_name VARCHAR(200) NOT NULL,
                                    contact_name VARCHAR(150) NOT NULL,
@@ -85,7 +85,7 @@ CREATE TABLE business_requests (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE business_request_items (
-                                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                        id BIGINT BIGSERIAL PRIMARY KEY,
                                         business_request_id BIGINT NOT NULL,
                                         product_id BIGINT NULL,
                                         service_name VARCHAR(200) NULL,

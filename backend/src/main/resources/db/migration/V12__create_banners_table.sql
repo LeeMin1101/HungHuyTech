@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS banners (
-                                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                       id BIGINT BIGSERIAL PRIMARY KEY,
                                        title VARCHAR(255) NOT NULL,
     image_url VARCHAR(500) NOT NULL,
     target_link VARCHAR(500),

@@ -1,6 +1,6 @@
 -- 1. Bảng roles (Lưu các quyền trong hệ thống)
 CREATE TABLE roles (
-                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                       id BIGINT BIGSERIAL PRIMARY KEY,
                        name VARCHAR(50) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -9,7 +9,7 @@ INSERT INTO roles (name) VALUES ('ADMIN'), ('STAFF'), ('CUSTOMER');
 
 -- 2. Bảng users (Lưu thông tin tài khoản người dùng)
 CREATE TABLE users (
-                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                       id BIGINT BIGSERIAL PRIMARY KEY,
                        full_name VARCHAR(150) NOT NULL,
                        email VARCHAR(150) NOT NULL UNIQUE,
                        password_hash VARCHAR(255) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE user_roles (
 
 -- 4. Bảng addresses (Sổ địa chỉ nhận hàng của User)
 CREATE TABLE addresses (
-                           id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                           id BIGINT BIGSERIAL PRIMARY KEY,
                            user_id BIGINT NOT NULL,
                            recipient_name VARCHAR(150) NOT NULL,
                            phone VARCHAR(20) NOT NULL,

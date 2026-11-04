@@ -1,6 +1,6 @@
 -- 1. Bảng promotions (Chương trình khuyến mãi)
 CREATE TABLE promotions (
-                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                            id BIGINT BIGSERIAL PRIMARY KEY,
                             name VARCHAR(150) NOT NULL,
                             description TEXT,
                             discount_type VARCHAR(30) NOT NULL, -- PERCENTAGE, FIXED_AMOUNT
@@ -27,7 +27,7 @@ CREATE TABLE promotion_products (
 
 -- 2. Bảng coupons (Mã giảm giá phát hành cho khách hàng)
 CREATE TABLE coupons (
-                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                         id BIGINT BIGSERIAL PRIMARY KEY,
                          code VARCHAR(50) NOT NULL UNIQUE,
                          promotion_id BIGINT NOT NULL,
                          usage_limit INT NULL, -- NULL nghĩa là không giới hạn số lượt

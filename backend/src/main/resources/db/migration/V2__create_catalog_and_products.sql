@@ -1,6 +1,6 @@
 -- 1. Bảng categories (Hỗ trợ danh mục đa cấp cha - con qua parent_id)
 CREATE TABLE categories (
-                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                            id BIGINT BIGSERIAL PRIMARY KEY,
                             parent_id BIGINT NULL,
                             name VARCHAR(150) NOT NULL,
                             slug VARCHAR(180) NOT NULL UNIQUE,
@@ -17,7 +17,7 @@ CREATE TABLE categories (
 
 -- 2. Bảng brands (Thương hiệu sản phẩm)
 CREATE TABLE brands (
-                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                        id BIGINT BIGSERIAL PRIMARY KEY,
                         name VARCHAR(150) NOT NULL,
                         slug VARCHAR(180) NOT NULL UNIQUE,
                         logo_url VARCHAR(500),
@@ -30,7 +30,7 @@ CREATE TABLE brands (
 
 -- 3. Bảng products (Sản phẩm tổng)
 CREATE TABLE products (
-                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          id BIGINT BIGSERIAL PRIMARY KEY,
                           category_id BIGINT NOT NULL,
                           brand_id BIGINT NOT NULL,
                           name VARCHAR(255) NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE products (
 
 -- 4. Bảng product_variants (Biến thể/SKU thực tế)
 CREATE TABLE product_variants (
-                                  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                  id BIGINT BIGSERIAL PRIMARY KEY,
                                   product_id BIGINT NOT NULL,
                                   sku VARCHAR(100) NOT NULL UNIQUE,
                                   name VARCHAR(255) NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE product_variants (
 
 -- 5. Bảng product_images (Hình ảnh sản phẩm)
 CREATE TABLE product_images (
-                                id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                id BIGINT BIGSERIAL PRIMARY KEY,
                                 product_id BIGINT NOT NULL,
                                 variant_id BIGINT NULL,
                                 image_url VARCHAR(500) NOT NULL,
@@ -84,12 +84,12 @@ CREATE TABLE product_images (
 
 -- 6. Các bảng thuộc tính động EAV (RAM, CPU, GPU...)
 CREATE TABLE attributes (
-                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                            id BIGINT BIGSERIAL PRIMARY KEY,
                             name VARCHAR(100) NOT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE attribute_values (
-                                  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                  id BIGINT BIGSERIAL PRIMARY KEY,
                                   attribute_id BIGINT NOT NULL,
                                   value VARCHAR(150) NOT NULL,
                                   INDEX idx_attr_values_attr (attribute_id),

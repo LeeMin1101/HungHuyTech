@@ -2,7 +2,7 @@
 -- 1. MODULE KHO HÀNG & SERIAL (MỤC 16 & 17)
 -- ==========================================================
 CREATE TABLE warehouses (
-                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                            id BIGINT BIGSERIAL PRIMARY KEY,
                             name VARCHAR(150) NOT NULL,
                             address VARCHAR(255) NOT NULL,
                             phone VARCHAR(20),
@@ -10,7 +10,7 @@ CREATE TABLE warehouses (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE inventories (
-                             id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                             id BIGINT BIGSERIAL PRIMARY KEY,
                              warehouse_id BIGINT NOT NULL,
                              variant_id BIGINT NOT NULL,
                              quantity INT NOT NULL DEFAULT 0,
@@ -24,7 +24,7 @@ CREATE TABLE inventories (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE inventory_transactions (
-                                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                        id BIGINT BIGSERIAL PRIMARY KEY,
                                         warehouse_id BIGINT NOT NULL,
                                         variant_id BIGINT NOT NULL,
                                         transaction_type VARCHAR(50) NOT NULL, -- IMPORT, SALE, RETURN, ADJUSTMENT, RESERVATION, RELEASE
@@ -40,7 +40,7 @@ CREATE TABLE inventory_transactions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE product_serials (
-                                 id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                 id BIGINT BIGSERIAL PRIMARY KEY,
                                  variant_id BIGINT NOT NULL,
                                  serial_number VARCHAR(100) NOT NULL UNIQUE,
                                  warehouse_id BIGINT NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE product_serials (
 -- 2. MODULE GIỎ HÀNG (MỤC 13)
 -- ==========================================================
 CREATE TABLE carts (
-                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                       id BIGINT BIGSERIAL PRIMARY KEY,
                        user_id BIGINT NOT NULL UNIQUE,
                        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -69,7 +69,7 @@ CREATE TABLE carts (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE cart_items (
-                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                            id BIGINT BIGSERIAL PRIMARY KEY,
                             cart_id BIGINT NOT NULL,
                             variant_id BIGINT NOT NULL,
                             quantity INT NOT NULL CHECK (quantity > 0),
@@ -84,7 +84,7 @@ CREATE TABLE cart_items (
 -- 3. MODULE ĐƠN HÀNG & THANH TOÁN (MỤC 14 & 15)
 -- ==========================================================
 CREATE TABLE orders (
-                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                        id BIGINT BIGSERIAL PRIMARY KEY,
                         order_code VARCHAR(50) NOT NULL UNIQUE,
                         user_id BIGINT NOT NULL,
                         status VARCHAR(30) NOT NULL DEFAULT 'PENDING', -- PENDING, CONFIRMED, PROCESSING, SHIPPING, DELIVERED, CANCELLED, RETURNED
@@ -107,7 +107,7 @@ CREATE TABLE orders (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE order_items (
-                             id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                             id BIGINT BIGSERIAL PRIMARY KEY,
                              order_id BIGINT NOT NULL,
                              variant_id BIGINT NOT NULL,
                              product_name VARCHAR(255) NOT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE order_items (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE payments (
-                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          id BIGINT BIGSERIAL PRIMARY KEY,
                           order_id BIGINT NOT NULL,
                           payment_method VARCHAR(50) NOT NULL, -- COD, BANK_TRANSFER, VNPAY
                           transaction_code VARCHAR(100),

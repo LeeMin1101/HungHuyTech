@@ -1,5 +1,5 @@
 CREATE TABLE warranties (
-                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                            id BIGINT BIGSERIAL PRIMARY KEY,
                             ticket_code VARCHAR(50) NOT NULL UNIQUE,
                             customer_name VARCHAR(100) NOT NULL,
                             customer_phone VARCHAR(20) NOT NULL,
