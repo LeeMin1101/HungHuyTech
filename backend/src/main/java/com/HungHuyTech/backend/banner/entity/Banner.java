@@ -20,8 +20,7 @@ public class Banner {
     @Column(nullable = false)
     private String title;
 
-    @Lob
-    @Column(name = "image_url", nullable = false, columnDefinition = "LONGTEXT")
+    @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
     private String imageUrl;
 
     @Column(name = "target_link", length = 500)
@@ -34,8 +33,7 @@ public class Banner {
     @Column(name = "type", length = 20)
     private String type; // 'IMAGE' hoặc 'VIDEO'
 
-    @Lob
-    @Column(name = "video_url", columnDefinition = "LONGTEXT")
+    @Column(name = "video_url", columnDefinition = "TEXT")
     private String videoUrl;
 
     @Column(name = "highlight", length = 100)
