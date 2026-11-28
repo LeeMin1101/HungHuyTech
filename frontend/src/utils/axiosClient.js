@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosClient = axios.create({
-    baseURL: 'http://localhost:8081/api/v1',
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'https://hunghuytech.onrender.com/api/v1',
     headers: {
         'Content-Type': 'application/json',
     }
@@ -11,7 +11,7 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
     (config) => {
         // Phân loại: Nếu gọi API có chữ /admin thì dùng adminToken, ngược lại dùng accessToken
-        const isAdminApi = config.url.includes('/admin');
+        const isAdminApi = config.url?.includes('/admin');
         const token = isAdminApi ? localStorage.getItem('adminToken') : localStorage.getItem('accessToken');
         
         if (token) {
@@ -45,9 +45,9 @@ axiosClient.interceptors.response.use(
                 
                 // QUAN TRỌNG: Kiểm tra nếu API đang gọi KHÔNG PHẢI là API đăng nhập
                 // Việc này giúp giữ lại thông báo lỗi màu đỏ khi nhập sai tài khoản, không bị F5 trang
-                if (!originalRequest.url.includes('/login')) {
+                if (!originalRequest.url?.includes('/login')) {
                     
-                    const isAdminApi = originalRequest.url.includes('/admin');
+                    const isAdminApi = originalRequest.url?.includes('/admin');
                     
                     if (isAdminApi) {
                         localStorage.removeItem('adminToken');
