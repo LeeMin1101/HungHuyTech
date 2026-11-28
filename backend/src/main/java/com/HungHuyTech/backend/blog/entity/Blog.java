@@ -27,13 +27,13 @@ public class Blog {
     @Column(length = 100)
     private String category;
 
-    @Column(length = 500)
+    @Column(columnDefinition = "TEXT")
     private String thumbnail;
 
     @Column(columnDefinition = "TEXT")
     private String summary;
 
-    @Column(columnDefinition = "LONGTEXT", nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content; // Lưu trữ mã HTML từ React Quill
 
     @Column(length = 20, nullable = false)
